@@ -2,13 +2,14 @@
   <div class="wrapper">
     <table>
       <tr>
-        <th v-for="(value, key) in getFilters" :key="key" @click="sort">
-          {{key}}<span :class=" getFilters[key] == 'down' ? 'fa fa-sort-desc' : 'fa-sort-asc'"></span>
+        <th v-for="(value, key) in getFilters" :key="key" @click="sort(key)">
+          {{key}}
+          <span class="fa" :class="getArrowClass(key)"></span>
         </th>
       </tr>
-      <tr v-for="(row, index) in data" :key="index">
-        <td v-for="(elem, index) in row" :key="index">
-          {{elem}}
+      <tr v-for="(row, index) in getTableArray" :key="index">
+        <td v-for="(value, key) in row" :key="key">
+          {{value}}
         </td>
       </tr>
     </table>
@@ -20,24 +21,93 @@
     props: ['data'],
     data() {
       return {
-        filters: []
+        filters: [],
+        tableArray: [],
       }
     },
     computed: {
+      getTableArray() {
+        return this.tableArray = this.data.slice();
+      },
       getFilters() {
-        let obj = {};
         this.filters = [];
+        let obj = {};
 
-        for (let key in this.data[0]) {
-          obj[key] = 'down'
+        for (let key in this.data.slice()[0]) {
+          obj[key] = 'no-sort'
         }
         this.filters.push(obj);
         return this.filters[0];
-      }
+      },
+
     },
     methods: {
-      sort() {
-        console.log('sort');
+      sort(key) {
+        for (let setting in this.getFilters) {
+          if(setting != key) {
+            this.getFilters[setting] = 'no-sort';
+          }
+        }
+
+        switch(this.getFilters[key]) {
+          case 'up': {
+            this.getFilters[key] = 'no-sort';
+            for (let i = 0; i < this.data.length; i++) {
+              this.tableArray[i] = this.data[i];
+            }
+            break;
+          }
+          case 'down': {
+            this.getFilters[key] = 'up';
+            this.tableArray.sort((prev, next) => {
+              if(+prev[key] || +next[key]) {
+                return next[key] - prev[key];
+              } else {
+                if(next[key].length > prev[key].length) {
+                  return 1;
+                } else if (next[key].length < prev[key].length) {
+                  return -1;
+                } else {
+                  return next[key].localeCompare(prev[key]);
+                }
+              }
+            });
+            break;
+          }
+          case 'no-sort': {
+            this.getFilters[key] = 'down';
+            this.tableArray.sort((prev, next) => {
+              if(+prev[key] || +next[key]) {
+                return prev[key] - next[key];
+              } else {
+                if(prev[key].length > next[key].length) {
+                  return 1;
+                } else if (prev[key].length < next[key].length) {
+                  return -1;
+                } else {
+                  return prev[key].localeCompare(next[key]);
+                }
+              }
+            });
+            break;
+          }
+        }
+      },
+      getArrowClass(key) {
+        switch(this.getFilters[key]) {
+          case 'up': {
+            return ['fa-arrow-up'];
+            break;
+          }
+          case 'down': {
+            return ['fa-arrow-down'];
+            break;
+          }
+          case 'no-sort': {
+            return ['fa-arrows-v'];
+            break;
+          }
+        }
       }
     }
   }

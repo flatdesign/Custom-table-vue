@@ -38,8 +38,8 @@
       },
       loadData() {
         this.makeRequest(this.urlAPI).then(responce => this.tableContent = responce.data);
-        console.log(this.tableContent);
       }
+
     }
   }
 </script>
