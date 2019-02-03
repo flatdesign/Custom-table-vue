@@ -1,7 +1,20 @@
 <template>
   <div class="container">
-    <button type="button" class="btn btn-success" @click.prevent="loadData">Загрузить данные</button>
-    <my-table :data="getTableContent"></my-table>
+    <div class="row">
+      <div class="col-8 col-sm-4">
+        <label for="exampleSelect1">Выбрать данные</label>
+        <select class="form-control" id="exampleSelect1">
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+          <option>5</option>
+        </select>
+        <button type="button" class="btn btn-success" @click.prevent="loadData">Загрузить</button>
+      </div>
+
+      <my-table :data="getTableContent"></my-table>
+    </div>
   </div>
 </template>
 
@@ -16,7 +29,6 @@
     },
     data () {
       return {
-        msg: 'Hello Danil',
         urlAPI: 'https://jsonplaceholder.typicode.com/albums',
         tableContent: []
       }
@@ -47,5 +59,9 @@
 <style>
  .container {
     padding-top: 50px;
+ }
+
+ .select {
+   margin-bottom: 15px;
  }
 </style>
