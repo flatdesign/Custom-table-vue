@@ -2,8 +2,16 @@
   <div class="wrapper">
       <div class="col-8 col-sm-4">
         <div class="form-group controls">
-          <input type="text" class="form-control" placeholder="Поиск...">
-          <input type="number" class="form-control" value="20" min="1" max="50" v-model="userRowCount">
+          <label>
+            Поиск совпадений
+            <input type="text" class="form-control" placeholder="Поиск..." v-model="search">
+          </label>
+
+          <label>
+            Кол-во строк:
+            <input type="number" class="form-control" value="20" min="1" max="50" v-model="userRowCount">
+          </label>
+
           <button type="button" class="btn btn-success" @click.prevent="setRows">Применить</button>
         </div>
       </div>
@@ -51,6 +59,7 @@
       return {
         filters: [],
         tableArray: [],
+        search: '',
         rowCount: 10,
         userRowCount: 0,  // Выбор пользователя
         currentPage: 0,
@@ -61,14 +70,19 @@
         return Math.ceil(this.data.length / this.rowCount);
       },
       getCurrentRows() {
-        console.log(1);
-        return this.tableArray.slice(this.rowCount * this.currentPage, this.rowCount * this.currentPage + this.rowCount);
-      },
-      getTableArray() {
-        return this.tableArray = this.data.slice();
+       let str = this.search;
+
+       return this.tableArray.filter(obj => {
+        for(let key in obj) {
+          if( typeof obj[key] === 'string') {
+            if((obj[key]).indexOf(str) + 1) {
+              return true;
+            }
+          }
+        }
+       }).slice(this.rowCount * this.currentPage, this.rowCount * this.currentPage + this.rowCount)
       },
       getFilters() {
-        console.log(1);
         this.filters = [];
         let obj = {};
 
@@ -79,6 +93,11 @@
         return this.filters[0];
       },
 
+    },
+    watch: {
+      data() {
+        this.tableArray = this.data.slice();
+      }
     },
     methods: {
       getPageClass(index) {
@@ -120,9 +139,10 @@
         switch(this.getFilters[key]) {
           case 'up': {
             this.getFilters[key] = 'no-sort';
-            for (let i = 0; i < this.data.length; i++) {
-              this.tableArray[i] = this.data[i];
-            }
+            this.tableArray = [];
+            this.data.forEach((el, i) => {
+              this.tableArray.push(el);
+            });
             break;
           }
           case 'down': {
@@ -172,7 +192,7 @@
             break;
           }
           case 'no-sort': {
-            return ['fa-arrows-v'];
+            return [''];
             break;
           }
         }
@@ -194,6 +214,12 @@
   th, td {
     border: 1px solid lightgray;
     padding: 8px 15px;
+  }
+
+  .form-group.controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
   }
 
 </style>
